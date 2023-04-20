@@ -1,22 +1,47 @@
-from airflow.hooks.postgres_hook import PostgresHook
+from typing import Optional
 from airflow.models import BaseOperator
-from airflow.utils.decorators import apply_defaults
+from airflow.providers.amazon.aws.hooks.redshift_sql import RedshiftSQLHook
+
 
 class LoadDimensionOperator(BaseOperator):
+    """
+    Operator to load dimension data into a Redshift table using a query.
+
+    Args:
+        query (str): The query to load dimension data.
+        redshift_conn_id (Optional[str], optional): The Redshift connection ID.
+            Defaults to "redshift_default".
+        autocommit (Optional[bool], optional): Whether to autocommit the query.
+            Defaults to False.
+    """
 
     ui_color = '#80BD9E'
 
-    @apply_defaults
-    def __init__(self,
-                 # Define your operators params (with defaults) here
-                 # Example:
-                 # conn_id = your-connection-name
-                 *args, **kwargs):
+    def __init__(
+        self,
+        *,
+        query: str,
+        redshift_conn_id: Optional[str] = "redshift_default",
+        autocommit: Optional[bool] = False,
+        **kwargs
+    ):
+        super().__init__(**kwargs)
 
-        super(LoadDimensionOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
-        # self.conn_id = conn_id
+        self.query = query
+        self.redshift_conn_id = redshift_conn_id
+        self.autocommit = autocommit
 
     def execute(self, context):
-        self.log.info('LoadDimensionOperator not implemented yet')
+        """
+        Execute the LoadDimensionOperator.
+
+        Args:
+            context (dict): The execution context.
+        """
+        redshift_hook = RedshiftSQLHook(redshift_conn_id=self.redshift_conn_id)
+
+        self.log.info("Query executing....")
+        redshift_hook.run(self.query, autocommit=self.autocommit)
+
+        self.log.info("Query complete...")
+
