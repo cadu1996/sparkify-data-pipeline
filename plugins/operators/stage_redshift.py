@@ -11,7 +11,6 @@ class StageToRedshiftOperator(BaseOperator):
     Operator to load data from an S3 bucket to a Redshift table.
 
     Args:
-        schema (str): The schema that the table belongs to.
         table (str): The table to load the data into.
         s3_bucket (str): The S3 bucket containing the data.
         s3_key (Optional[str], optional): The S3 key of the data file. Defaults
@@ -38,7 +37,6 @@ class StageToRedshiftOperator(BaseOperator):
     def __init__(
         self,
         *,
-        schema: str,
         table: str,
         s3_bucket: str,
         s3_key: Optional[str] = None,
@@ -52,7 +50,6 @@ class StageToRedshiftOperator(BaseOperator):
     ):
         super().__init__(**kwargs)
 
-        self.schema = schema
         self.table = table
         self.s3_bucket = s3_bucket
         self.s3_key = s3_key
@@ -103,7 +100,7 @@ def execute(self, context):
     credentials_block = build_credentials_block(credentials)
 
     copy_options = "\n\t\t\t".join(self.copy_options)
-    copy_destination = f"{self.schema}.{self.table}"
+    copy_destination = f"{self.table}"
     copy_statement = self._build_copy_query(
         copy_destination, credentials_block, copy_options
     )

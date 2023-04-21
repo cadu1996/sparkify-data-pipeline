@@ -9,7 +9,6 @@ class LoadFactOperator(BaseOperator):
     Operator to load fact data into a Redshift table using a SELECT query.
 
     Args:
-        schema (str): The schema name.
         table (str): The table name.
         query_transformation (str): The SELECT query to load fact data.
         redshift_conn_id (Optional[str], optional): The Redshift connection ID.
@@ -23,7 +22,6 @@ class LoadFactOperator(BaseOperator):
     def __init__(
         self,
         *,
-        schema: str,
         table: str,
         query_transformation: str,
         redshift_conn_id: Optional[str] = "redshift_default",
@@ -32,7 +30,6 @@ class LoadFactOperator(BaseOperator):
     ):
         super().__init__(**kwargs)
 
-        self.schema = schema
         self.table = table
         self.query = query_transformation
         self.redshift_conn_id = redshift_conn_id
@@ -47,7 +44,7 @@ class LoadFactOperator(BaseOperator):
         """
         redshift_hook = RedshiftSQLHook(redshift_conn_id=self.redshift_conn_id)
 
-        insert_statement = f"INSERT INTO {self.schema}.{self.table} \n"
+        insert_statement = f"INSERT INTO {self.table} \n"
 
         self.log.info("Query executing....")
         redshift_hook.run(

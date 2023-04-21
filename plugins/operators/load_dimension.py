@@ -8,7 +8,6 @@ class LoadDimensionOperator(BaseOperator):
     Operator to load dimension data into a Redshift table using a SELECT query.
 
     Args:
-        schema (str): The schema name.
         table (str): The table name.
         query_transformation (str): The SELECT query to load dimension data.
         redshift_conn_id (Optional[str], optional): The Redshift connection ID.
@@ -24,7 +23,6 @@ class LoadDimensionOperator(BaseOperator):
     def __init__(
         self,
         *,
-        schema: str,
         table: str,
         query_transformation: str,
         redshift_conn_id: Optional[str] = "redshift_default",
@@ -34,7 +32,6 @@ class LoadDimensionOperator(BaseOperator):
     ):
         super().__init__(**kwargs)
 
-        self.schema = schema
         self.table = table
         self.query = query_transformation
         self.redshift_conn_id = redshift_conn_id
@@ -55,7 +52,7 @@ class LoadDimensionOperator(BaseOperator):
             self.log.info("Truncating table...")
             redshift_hook.run(truncate_statement, autocommit=self.autocommit)
 
-        insert_statement = f"INSERT INTO {self.schema}.{self.table} \n"
+        insert_statement = f"INSERT INTO {self.table} \n"
 
         self.log.info("Query executing....")
         redshift_hook.run(
