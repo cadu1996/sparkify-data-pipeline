@@ -31,35 +31,34 @@ The Data Lake implementation consists of processing and storing raw data in a ce
 * `plugins/operators/load_fact.py`: This custom Airflow operator deals with loading fact tables in Redshift.
 * `plugins/operators/stage_redshift.py`: This custom Airflow operator stages data from S3 to Redshift.
 * `plugins/helpers/sql_queries.py`: Contains SQL queries for creating, inserting, and validating data in Redshift tables.
+* `docker-compose.yaml`: Docker Compose file for setting up and running the Airflow environment in Docker.
 * `README.md`: Markdown file with information about the project.
 
 ## Installation and Configuration
 
 1. Install Python 3.8 or higher.
 
-2. Install Apache Airflow by following the [official installation guide](https://airflow.apache.org/docs/apache-airflow/stable/start/installation.html).
-
-3. Install Docker and Docker Compose by following their respective installation guides:
+2. Install Docker and Docker Compose by following their respective installation guides:
    * [Docker](https://docs.docker.com/engine/install/)
    * [Docker Compose](https://docs.docker.com/compose/install/)
 
-4. Set up your AWS S3 and Redshift instances, as well as the necessary security groups and IAM roles. For more information, refer to the [AWS documentation](https://docs.aws.amazon.com/index.html).
-
-5. Configure the Airflow connections and variables for your AWS credentials and Redshift cluster information. You can do this by following the [official Airflow documentation](https://airflow.apache.org/docs/apache-airflow/stable/howto/connection/index.html).
+3. Set up your AWS S3 and Redshift instances, as well as the necessary security groups and IAM roles. For more information, refer to the [AWS documentation](https://docs.aws.amazon.com/index.html).
 
 ## Execution
 
-1. Start the Airflow webserver and scheduler by running the following command in your terminal:
+1. In the project directory, execute the following command to start the Airflow environment using Docker Compose:
    ```
-   airflow webserver -D && airflow scheduler -D
+   docker-compose up
    ```
 2. Open the Airflow web interface in your browser at `http://localhost:8080`.
 
-3. Enable the `create_tables_dag` and `etl_dag` by toggling the switch next to each DAG.
+3. Configure the Airflow connections and variables for your AWS credentials and Redshift cluster information. You can do this by following the [official Airflow documentation](https://airflow.apache.org/docs/apache-airflow/stable/howto/connection/index.html).
 
-4. Manually trigger the `create_tables_dag` by clicking on the DAG and then clicking on the "Trigger DAG" button.
+4. Enable the `create_tables_dag` and `etl_dag` by toggling the switch next to each DAG.
 
-5. Once the `create_tables_dag` has completed successfully, manually trigger the `etl_dag`.
+5. Manually trigger the `create_tables_dag` by clicking on the DAG and then clicking on the "Trigger DAG" button.
+
+6. Once the `create_tables_dag` has completed successfully, manually trigger the `etl_dag`.
 
 ![Data Modeling Diagram](img/sparkify_staging_tables.png)
 
@@ -67,4 +66,4 @@ The Data Lake implementation consists of processing and storing raw data in a ce
 
 After the ETL process has completed, you will have a star schema in Redshift consisting of fact and dimension tables, allowing you to analyze and gain insights into user behavior and preferences on the Sparkify platform.
 
-
+![Data Modeling Diagram](img/sparkify_star_schema.png)
