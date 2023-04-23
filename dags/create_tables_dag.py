@@ -11,6 +11,10 @@ from helpers import SqlQueries
 default_args = {
     "owner": "Carlos Eduardo de Souza",
     "start_date": datetime(2019, 1, 12),
+    "depends_on_past": False,
+    "retries": 3,
+    "retry_delay": timedelta(minutes=5),
+    "catchup": False,
 }
 
 dag = DAG(
@@ -18,7 +22,6 @@ dag = DAG(
     default_args=default_args,
     description="Crate tables in Redshift with Airflow",
     schedule_interval=None,
-    catchup=False,
 )
 
 start_operator = DummyOperator(task_id="Begin_execution", dag=dag)
