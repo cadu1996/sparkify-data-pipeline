@@ -48,7 +48,7 @@ class LoadDimensionOperator(BaseOperator):
         redshift_hook = RedshiftSQLHook(redshift_conn_id=self.redshift_conn_id)
 
         if self.truncate_table:
-            truncate_statement = f"TRUNCATE TABLE {self.schema}.{self.table};"
+            truncate_statement = f"TRUNCATE TABLE {self.table};"
             self.log.info("Truncating table...")
             redshift_hook.run(truncate_statement, autocommit=self.autocommit)
 

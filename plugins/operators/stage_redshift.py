@@ -43,7 +43,7 @@ class StageToRedshiftOperator(BaseOperator):
         redshift_conn_id: str = "redshift_default",
         aws_conn_id: str = "aws_default",
         verify: Union[bool, str, None] = None,
-        autocommit: bool = False,
+        autocommit: bool = True,
         column_list: List[str] = None,
         copy_options: List[str] = None,
         **kwargs,
@@ -86,27 +86,27 @@ class StageToRedshiftOperator(BaseOperator):
         {copy_options};
     """
 
-def execute(self, context):
-    """
-    Execute the StageToRedshiftOperator.
+    def execute(self, context):
+        """
+        Execute the StageToRedshiftOperator.
 
-    Args:
-        context (dict): The execution context.
-    """
-    redshift_hook = RedshiftSQLHook(redshift_conn_id=self.redshift_conn_id)
+        Args:
+            context (dict): The execution context.
+        """
+        redshift_hook = RedshiftSQLHook(redshift_conn_id=self.redshift_conn_id)
 
-    s3_hook = S3Hook(aws_conn_id=self.aws_conn_id, verify=self.verify)
-    credentials = s3_hook.get_credentials()
-    credentials_block = build_credentials_block(credentials)
+        s3_hook = S3Hook(aws_conn_id=self.aws_conn_id, verify=self.verify)
+        credentials = s3_hook.get_credentials()
+        credentials_block = build_credentials_block(credentials)
 
-    copy_options = "\n\t\t\t".join(self.copy_options)
-    copy_destination = f"{self.table}"
-    copy_statement = self._build_copy_query(
-        copy_destination, credentials_block, copy_options
-    )
+        copy_options = "\n\t\t\t".join(self.copy_options)
+        copy_destination = f"{self.table}"
+        copy_statement = self._build_copy_query(
+            copy_destination, credentials_block, copy_options
+        )
 
-    self.log.info("Executing COPY command...")
-    redshift_hook.run(copy_statement, autocommit=self.autocommit)
+        self.log.info("Executing COPY command...")
+        redshift_hook.run(copy_statement, autocommit=self.autocommit)
 
-    self.log.info("COPY command complete...")
+        self.log.info("COPY command complete...")
 
