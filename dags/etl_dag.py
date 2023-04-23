@@ -10,20 +10,17 @@ from operators import (
 )
 from helpers import SqlQueries
 
-# AWS_KEY = os.environ.get('AWS_KEY')
-# AWS_SECRET = os.environ.get('AWS_SECRET')
-
 default_args = {
     "owner": "Carlos Eduardo de Souza",
-    "start_date": datetime(2019, 1, 12),
+    "start_date": datetime(2018, 11, 1),
 }
 
 dag = DAG(
     "etl_dag",
     default_args=default_args,
     description="Load and transform data in Redshift with Airflow",
-    schedule_interval=None,
-    catchup=False,
+    schedule_interval="0 0 * * *",
+    catchup=True,
 )
 
 start_operator = DummyOperator(task_id="Begin_execution", dag=dag)
@@ -32,7 +29,7 @@ stage_events_to_redshift = StageToRedshiftOperator(
     task_id="Stage_events",
     table="staging_events",
     s3_bucket="udacity-dend",
-    s3_key="log_data",
+    s3_key="log_data/{{ execution_date.year }}/{{ execution_date.month }}/{{ ds }}-events.json",
     copy_options=[
         "REGION 'us-west-2'",
         "FORMAT AS JSON 's3://udacity-dend/log_json_path.json'",

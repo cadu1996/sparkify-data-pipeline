@@ -32,7 +32,7 @@ class StageToRedshiftOperator(BaseOperator):
 
     ui_color = "#358140"
 
-    template_fields = ("s3_bucket", "s3_key", "copy_options")
+    template_fields = ("s3_bucket", "s3_key", "copy_options",)
 
     def __init__(
         self,
