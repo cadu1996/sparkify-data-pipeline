@@ -1,14 +1,16 @@
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
+
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
-from operators import (
-    StageToRedshiftOperator,
-    LoadFactOperator,
-    LoadDimensionOperator,
-    DataQualityOperator,
-)
+from airflow.utils.task_group import TaskGroup
 from helpers import SqlQueries
+from operators import (
+    DataQualityOperator,
+    LoadDimensionOperator,
+    LoadFactOperator,
+    StageToRedshiftOperator,
+)
 
 default_args = {
     "owner": "Carlos Eduardo de Souza",
@@ -60,11 +62,18 @@ load_songplays_table = LoadFactOperator(
     dag=dag,
 )
 
+
+load_dimension_tables = TaskGroup(
+    "Load_dimension_tables", tooltip="Load dimension tables", dag=dag
+)
+
+
 load_user_dimension_table = LoadDimensionOperator(
     task_id="Load_user_dim_table",
     table="users",
     query_transformation=SqlQueries.user_table_insert,
     truncate_table=True,
+    task_group=load_dimension_tables,
     dag=dag,
 )
 
@@ -73,6 +82,7 @@ load_song_dimension_table = LoadDimensionOperator(
     table="songs",
     query_transformation=SqlQueries.song_table_insert,
     truncate_table=True,
+    task_group=load_dimension_tables,
     dag=dag,
 )
 
@@ -81,6 +91,7 @@ load_artist_dimension_table = LoadDimensionOperator(
     table="artists",
     query_transformation=SqlQueries.artist_table_insert,
     truncate_table=True,
+    task_group=load_dimension_tables,
     dag=dag,
 )
 
@@ -89,14 +100,15 @@ load_time_dimension_table = LoadDimensionOperator(
     table="time",
     query_transformation=SqlQueries.time_table_insert,
     truncate_table=True,
+    task_group=load_dimension_tables,
     dag=dag,
 )
 
 run_quality_checks = DataQualityOperator(
-        task_id="Run_data_quality_checks",
-        tables=["songplays", "users", "songs", "artists", "time"],
-        dag=dag
-        )
+    task_id="Run_data_quality_checks",
+    tables=["songplays", "users", "songs", "artists", "time"],
+    dag=dag,
+)
 
 end_operator = DummyOperator(task_id="Stop_execution", dag=dag)
 

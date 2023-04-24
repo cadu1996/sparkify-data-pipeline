@@ -1,12 +1,10 @@
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
+
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
-
 from airflow.providers.amazon.aws.operators.redshift_sql import RedshiftSQLOperator
-
 from helpers import SqlQueries
-
 
 default_args = {
     "owner": "Carlos Eduardo de Souza",
@@ -80,4 +78,3 @@ end_operator = DummyOperator(task_id="Stop_execution", dag=dag)
     >> create_songplays_table
     >> end_operator
 )
-
